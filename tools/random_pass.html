@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-adsense-account" content="ca-pub-9818873189641493">
+    <meta name="google-site-verification" content="iAN9AM3kAC3hCJHmgKJ5ICF0IGo1x-Rq7O4oIfyPv_o" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Tools - Random Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f8ff;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #0066ff;
+            margin: 40px 0;
+            font-size: 2.5em;
+        }
+
+        .generator-section {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 102, 255, 0.1);
+        }
+
+        .generator-title {
+            color: #0066ff;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #666;
+        }
+
+        input[type="number"],
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #0066ff;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .options-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        button {
+            background: #0066ff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #0052cc;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e6f0ff;
+            border-radius: 5px;
+            font-size: 18px;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            margin-left: 10px;
+            padding: 8px 15px;
+            background: #0047b3;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .generator-section {
+                padding: 20px;
+            }
+
+            .options-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Security Generators</h1>
+
+        <!-- Random Number Generator -->
+        <div class="generator-section">
+            <h2 class="generator-title">Random Number Generator</h2>
+            <div class="input-group">
+                <label>Minimum Value:</label>
+                <input type="number" id="minValue" value="1">
+            </div>
+            <div class="input-group">
+                <label>Maximum Value:</label>
+                <input type="number" id="maxValue" value="100">
+            </div>
+            <button onclick="generateRandomNumber()">Generate Number</button>
+            <div class="result" id="numberResult"></div>
+        </div>
+
+        <!-- Password Generator -->
+        <div class="generator-section">
+            <h2 class="generator-title">Password Generator</h2>
+            <div class="input-group">
+                <label>Password Length:</label>
+                <input type="number" id="passwordLength" value="12" min="4" max="64">
+            </div>
+            <div class="options-group">
+                <label><input type="checkbox" id="uppercase" checked> Uppercase</label>
+                <label><input type="checkbox" id="lowercase" checked> Lowercase</label>
+                <label><input type="checkbox" id="numbers" checked> Numbers</label>
+                <label><input type="checkbox" id="symbols" checked> Symbols</label>
+            </div>
+            <button onclick="generatePassword()">Generate Password</button>
+            <div class="result" id="passwordResult"></div>
+        </div>
+    </div>
+
+    <script>
+        // Random Number Generator
+        function generateRandomNumber() {
+            const min = parseInt(document.getElementById('minValue').value);
+            const max = parseInt(document.getElementById('maxValue').value);
+            
+            if (min >= max) {
+                alert('Minimum value must be less than maximum value');
+                return;
+            }
+
+            const result = Math.floor(Math.random() * (max - min + 1)) + min;
+            document.getElementById('numberResult').innerHTML = result;
+        }
+
+        // Password Generator
+        function generatePassword() {
+            const length = document.getElementById('passwordLength').value;
+            const uppercase = document.getElementById('uppercase').checked;
+            const lowercase = document.getElementById('lowercase').checked;
+            const numbers = document.getElementById('numbers').checked;
+            const symbols = document.getElementById('symbols').checked;
+
+            let charset = '';
+            if (uppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (lowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
+            if (numbers) charset += '0123456789';
+            if (symbols) charset += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+            if (!charset) {
+                alert('Please select at least one character type');
+                return;
+            }
+
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                password += charset.charAt(Math.floor(Math.random() * charset.length));
+            }
+
+            const passwordResult = document.getElementById('passwordResult');
+            passwordResult.innerHTML = `${password} <button class="copy-btn" onclick="copyToClipboard('${password}')">Copy</button>`;
+        }
+
+        // Copy to Clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+    </script>
+</body>
+</html>

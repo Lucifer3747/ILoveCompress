@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-adsense-account" content="ca-pub-9818873189641493">
+    <meta name="google-site-verification" content="iAN9AM3kAC3hCJHmgKJ5ICF0IGo1x-Rq7O4oIfyPv_o" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to Image Converter | Multi-Tool</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <style>
+        :root {
+            --primary-blue: #2196F3;
+            --secondary-blue: #E3F2FD;
+            --error-red: #ff4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: var(--secondary-blue);
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: var(--primary-blue);
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+        }
+
+        .upload-section {
+            border: 3px dashed var(--primary-blue);
+            border-radius: 8px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .upload-section:hover {
+            background-color: var(--secondary-blue);
+            transform: scale(1.02);
+        }
+
+        #preview-container {
+            display: none;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .page-preview {
+            border: 2px solid var(--primary-blue);
+            border-radius: 8px;
+            padding: 5px;
+            background: white;
+            max-width: 200px;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .button {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            margin: 10px 5px;
+        }
+
+        .button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .status {
+            text-align: center;
+            margin: 15px 0;
+            color: var(--primary-blue);
+            font-size: 0.95rem;
+        }
+
+        .error {
+            color: var(--error-red);
+            text-align: center;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .quality-control {
+            margin: 15px 0;
+            text-align: center;
+            display: none;
+        }
+
+        .quality-slider {
+            width: 200px;
+            margin: 10px 0;
+        }
+
+        .loader {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 15px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .upload-section {
+                padding: 20px 15px;
+            }
+
+            .button {
+                width: 100%;
+                margin: 5px 0;
+            }
+
+            .page-preview {
+                max-width: 150px;
+            }
+
+            .quality-slider {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PDF to Image Converter</h1>
+        
+        <div class="upload-section" onclick="document.getElementById('file-input').click()">
+            <p>📄 Click to upload PDF</p>
+            <small>(Max 25 pages, 10MB)</small>
+        </div>
+
+        <input type="file" id="file-input" accept="application/pdf">
+        
+        <div class="quality-control">
+            <label>Quality: <span id="quality-value">80</span>%</label>
+            <input type="range" class="quality-slider" min="10" max="100" value="80">
+        </div>
+
+        <div class="loader" id="loader"></div>
+        <p class="status" id="status">Ready to convert</p>
+        <p class="error" id="error-msg"></p>
+        
+        <div id="preview-container"></div>
+
+        <div style="text-align: center">
+            <button class="button" id="download-all-btn" style="display: none;">
+                ⬇️ Download All as ZIP
+            </button>
+            <button class="button" id="download-single-btn" style="display: none;">
+                ⬇️ Download Current Page
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const loader = document.getElementById('loader');
+        const status = document.getElementById('status');
+        const errorMsg = document.getElementById('error-msg');
+        const qualitySlider = document.querySelector('.quality-slider');
+        const qualityValue = document.getElementById('quality-value');
+        let currentImages = [];
+
+        fileInput.addEventListener('change', handleFileSelect);
+        qualitySlider.addEventListener('input', updateQuality);
+
+        async function handleFileSelect(e) {
+            clearError();
+            const file = e.target.files[0];
+            
+            if (!file) return;
+            
+            if (file.type !== 'application/pdf') {
+                showError('Please upload a valid PDF file');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                showError('File size exceeds 10MB limit');
+                return;
+            }
+
+            showLoading(true);
+            try {
+                const pdfData = await readFile(file);
+                const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+                
+                if (pdf.numPages > 25) {
+                    showError('Maximum 25 pages supported');
+                    return;
+                }
+
+                document.querySelector('.quality-control').style.display = 'block';
+                await renderPages(pdf);
+                setupDownloadButtons();
+                showLoading(false);
+            } catch (error) {
+                showError('Failed to process PDF');
+                console.error(error);
+                showLoading(false);
+            }
+        }
+
+        async function renderPages(pdf) {
+            const previewContainer = document.getElementById('preview-container');
+            previewContainer.style.display = 'flex';
+            previewContainer.innerHTML = '';
+            currentImages = [];
+
+            for (let i = 1; i <= pdf.numPages; i++) {
+                status.textContent = `Processing page ${i} of ${pdf.numPages}...`;
+                const page = await pdf.getPage(i);
+                const viewport = page.getViewport({ scale: 1.5 });
+                
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                await page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                }).promise;
+
+                const imgData = canvas.toDataURL('image/jpeg', qualitySlider.value / 100);
+                currentImages.push(imgData);
+                
+                const img = new Image();
+                img.src = imgData;
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = 'page-preview';
+                wrapper.innerHTML = `<small>Page ${i}</small>`;
+                wrapper.appendChild(img);
+                previewContainer.appendChild(wrapper);
+            }
+        }
+
+        function updateQuality() {
+            qualityValue.textContent = qualitySlider.value;
+            // Re-compress images with new quality if needed
+        }
+
+        function setupDownloadButtons() {
+            document.getElementById('download-all-btn').style.display = 'inline-block';
+            document.getElementById('download-single-btn').style.display = 'inline-block';
+            
+            document.getElementById('download-single-btn').onclick = () => {
+                if (currentImages.length > 0) {
+                    downloadImage(currentImages[0], 'page-1.jpg');
+                }
+            };
+
+            document.getElementById('download-all-btn').onclick = async () => {
+                showLoading(true);
+                const zip = new JSZip();
+                
+                currentImages.forEach((img, index) => {
+                    const data = img.split(',')[1];
+                    zip.file(`page-${index + 1}.jpg`, data, { base64: true });
+                });
+
+                const content = await zip.generateAsync({ type: 'blob' });
+                const url = URL.createObjectURL(content);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'converted-pages.zip';
+                a.click();
+                URL.revokeObjectURL(url);
+                showLoading(false);
+            };
+        }
+
+        function downloadImage(dataUrl, filename) {
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = filename;
+            a.click();
+        }
+
+        function readFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = e => resolve(e.target.result);
+                reader.onerror = error => reject(error);
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function showLoading(show) {
+            loader.style.display = show ? 'block' : 'none';
+            status.textContent = show ? 'Processing...' : 'Conversion complete!';
+        }
+
+        function showError(message) {
+            errorMsg.textContent = message;
+            errorMsg.style.display = 'block';
+            setTimeout(() => errorMsg.style.display = 'none', 5000);
+        }
+
+        function clearError() {
+            errorMsg.style.display = 'none';
+        }
+
+        // Drag and drop handling
+        document.addEventListener('dragover', e => e.preventDefault());
+        document.addEventListener('drop', e => {
+            e.preventDefault();
+            if (e.dataTransfer.files[0]) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect(e);
+            }
+        });
+    </script>
+</body>
+</html>

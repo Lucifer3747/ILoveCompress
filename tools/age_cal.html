@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-adsense-account" content="ca-pub-9818873189641493">
+    <meta name="google-site-verification" content="iAN9AM3kAC3hCJHmgKJ5ICF0IGo1x-Rq7O4oIfyPv_o" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age Calculator | Multi-Tool</title>
+    <style>
+        :root {
+            --primary-color: #2196F3;
+            --secondary-color: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: var(--secondary-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 90%;
+            margin: 2rem auto;
+            padding: 20px;
+        }
+
+        .calculator-container {
+            background-color: var(--secondary-color);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.2);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        input[type="date"] {
+            width: 100%;
+            max-width: 300px;
+            padding: 12px;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .result {
+            margin-top: 2rem;
+            text-align: center;
+            display: none;
+        }
+
+        .age-result {
+            background-color: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+
+        .age-item {
+            margin: 1rem 0;
+            padding: 1rem;
+            background-color: var(--secondary-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .age-number {
+            color: var(--primary-color);
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .age-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 10px;
+            }
+
+            .calculator-container {
+                padding: 1.5rem;
+            }
+
+            input[type="date"] {
+                width: 100%;
+            }
+
+            .age-number {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="calculator-container">
+            <h1>Age Calculator</h1>
+            <div class="input-group">
+                <input type="date" id="birthdate" max="">
+                <button onclick="calculateAge()">Calculate Age</button>
+            </div>
+            <div class="result" id="result">
+                <div class="age-result">
+                    <div class="age-item">
+                        <div class="age-number" id="years">0</div>
+                        <div class="age-label">Years</div>
+                    </div>
+                    <div class="age-item">
+                        <div class="age-number" id="months">0</div>
+                        <div class="age-label">Months</div>
+                    </div>
+                    <div class="age-item">
+                        <div class="age-number" id="days">0</div>
+                        <div class="age-label">Days</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set max date to today
+        document.getElementById('birthdate').max = new Date().toISOString().split('T')[0];
+
+        function calculateAge() {
+            const birthdate = new Date(document.getElementById('birthdate').value);
+            const today = new Date();
+            
+            if (!birthdate.getTime()) {
+                alert('Please select a valid date');
+                return;
+            }
+
+            if (birthdate > today) {
+                alert('Birthdate cannot be in the future');
+                return;
+            }
+
+            let years = today.getFullYear() - birthdate.getFullYear();
+            let months = today.getMonth() - birthdate.getMonth();
+            let days = today.getDate() - birthdate.getDate();
+
+            if (days < 0) {
+                months--;
+                days += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+            }
+
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            // Animate numbers
+            animateValue('years', years);
+            animateValue('months', months);
+            animateValue('days', days);
+
+            // Show result section
+            document.getElementById('result').style.display = 'block';
+        }
+
+        function animateValue(elementId, finalValue) {
+            let current = 0;
+            const element = document.getElementById(elementId);
+            const increment = finalValue > 100 ? Math.ceil(finalValue / 100) : 1;
+            
+            const updateCount = () => {
+                if (current < finalValue) {
+                    current += increment;
+                    element.textContent = current;
+                    requestAnimationFrame(updateCount);
+                } else {
+                    element.textContent = finalValue;
+                }
+            };
+            
+            updateCount();
+        }
+    </script>
+</body>
+</html>

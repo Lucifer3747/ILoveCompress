@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-adsense-account" content="ca-pub-9818873189641493">
+    <meta name="google-site-verification" content="iAN9AM3kAC3hCJHmgKJ5ICF0IGo1x-Rq7O4oIfyPv_o" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keyword Density Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            margin: 1rem;
+        }
+
+        h1 {
+            color: #007bff;
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            color: #007bff;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 0.8rem;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            resize: none;
+            font-size: 1rem;
+            box-sizing: border-box;
+            margin-bottom: 1rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        textarea:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #0056b3;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            padding: 0.8rem;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .clear-btn {
+            grid-column: span 2;
+        }
+
+        .output {
+            background-color: #e6f0ff;
+            padding: 1rem;
+            border-radius: 5px;
+            min-height: 60px;
+            color: #0056b3;
+            font-size: 1rem;
+        }
+
+        .output p {
+            margin: 0.5rem 0;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            textarea {
+                height: 120px;
+                font-size: 0.9rem;
+            }
+
+            input[type="text"] {
+                font-size: 0.9rem;
+            }
+
+            button {
+                font-size: 0.9rem;
+            }
+
+            .output {
+                font-size: 0.9rem;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+
+            .clear-btn {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Keyword Density Checker</h1>
+        <div class="input-group">
+            <label for="textInput">Input Text</label>
+            <textarea id="textInput" placeholder="Paste your text here..."></textarea>
+        </div>
+        <div class="input-group">
+            <label for="keywordInput">Keyword</label>
+            <input type="text" id="keywordInput" placeholder="Enter keyword">
+        </div>
+        <div class="button-group">
+            <button onclick="checkDensity()">Check Density</button>
+            <button class="clear-btn" onclick="clearInputs()">Clear</button>
+        </div>
+        <div class="output" id="output">Results will appear here...</div>
+    </div>
+
+    <script>
+        const textInput = document.getElementById('textInput');
+        const keywordInput = document.getElementById('keywordInput');
+        const output = document.getElementById('output');
+
+        function checkDensity() {
+            const text = textInput.value.trim();
+            const keyword = keywordInput.value.trim();
+
+            if (!text || !keyword) {
+                output.textContent = 'Please enter both text and a keyword.';
+                return;
+            }
+
+            // Split text into words (case-insensitive)
+            const words = text.toLowerCase().match(/\b\w+\b/g) || [];
+            const totalWords = words.length;
+
+            // Count keyword occurrences (case-insensitive)
+            const keywordLower = keyword.toLowerCase();
+            const keywordCount = words.filter(word => word === keywordLower).length;
+
+            // Calculate density
+            const density = totalWords > 0 ? ((keywordCount / totalWords) * 100).toFixed(2) : 0;
+
+            // Display results
+            output.innerHTML = `
+                <p><strong>Total Words:</strong> ${totalWords}</p>
+                <p><strong>Keyword:</strong> ${keyword}</p>
+                <p><strong>Keyword Count:</strong> ${keywordCount}</p>
+                <p><strong>Keyword Density:</strong> ${density}%</p>
+            `;
+        }
+
+        function clearInputs() {
+            textInput.value = '';
+            keywordInput.value = '';
+            output.textContent = 'Results will appear here...';
+        }
+    </script>
+</body>
+</html>

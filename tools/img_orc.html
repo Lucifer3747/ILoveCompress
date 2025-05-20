@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-adsense-account" content="ca-pub-9818873189641493">
+    <meta name="google-site-verification" content="iAN9AM3kAC3hCJHmgKJ5ICF0IGo1x-Rq7O4oIfyPv_o" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image OCR - Tools Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/tesseract.js@4.0.9/dist/tesseract.min.js"></script>
+    <style>
+        body { background: #f0f9ff; }
+        .btn-hover { transition: background-color 0.3s ease, transform 0.3s ease; }
+        .btn-hover:hover { background-color: #1d4ed8; transform: translateY(-2px); }
+        .preview-img { max-width: 100%; height: auto; border-radius: 8px; }
+        .container { max-width: 1200px; }
+        .text-output { max-height: 300px; overflow-y: auto; border: 1px solid #d1d5db; border-radius: 8px; padding: 1rem; }
+        @media (max-width: 640px) {
+            .preview-img { max-height: 300px; }
+            .flex-col { flex-direction: column; }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+    <!-- Header -->
+       <header class="bg-white shadow-sm py-4" id="header">
+     <div class="container mx-auto px-4 flex justify-between items-center">
+        <div class="text-2xl font-bold text-blue-700">
+            <img src="../logo.avif" alt="I love Compress" class="h-14">
+        </div>
+        <nav class="space-x-6">
+            <a href="../index.html" class="nav-link text-gray-600 hover:text-blue-700">Home</a>
+            <a href="../index.html#tools" class="nav-link text-gray-600 hover:text-blue-700">Tools</a>
+            <a href="../index.html#contact" class="nav-link text-gray-600 hover:text-blue-700">Contact</a>
+        </nav>
+        <div class="flex items-center space-x-4">
+            <a href="mailto:lucipycode101@gmail.com" class="text-gray-600 hover:text-blue-700">lucipycode101@gmail.com</a>
+            <button id="theme-toggle" class="text-gray-600 hover:text-blue-700">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </div>
+</header>
+
+
+    <!-- Main Section -->
+    <section class="py-12">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl md:text-4xl font-bold text-blue-700 mb-6 text-center">Image OCR</h1>
+            <p class="text-lg text-gray-600 mb-8 text-center">Extract text from images accurately using OCR technology.</p>
+
+            <div class="bg-white p-8 rounded-lg shadow-md max-w-3xl mx-auto">
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-2">Upload Image</label>
+                    <input type="file" id="imageInput" accept="image/*" class="w-full p-2 border border-gray-300 rounded">
+                </div>
+                <button id="ocrBtn" class="w-full bg-blue-600 text-white px-4 py-2 rounded btn-hover">Extract Text</button>
+                <p id="status" class="text-gray-600 mt-4 text-center hidden">Processing...</p>
+            </div>
+
+            <div class="mt-12 flex flex-col md:flex-row gap-8">
+                <div class="flex-1">
+                    <h2 class="text-2xl font-semibold text-blue-700 mb-4">Original Image</h2>
+                    <img id="originalPreview" class="preview-img hidden" alt="Original Image">
+                </div>
+                <div class="flex-1">
+                    <h2 class="text-2xl font-semibold text-blue-700 mb-4">Extracted Text</h2>
+                    <div id="textOutput" class="text-output text-gray-600 hidden"></div>
+                    <a id="downloadBtn" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded btn-hover hidden">Download Text</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-10">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="text-2xl font-bold text-blue-400">I love Compress</div>
+                    <p class="text-gray-400">Simplifying your digital life.</p>
+                </div>
+                <div class="flex flex-col items-center md:items-end">
+                    <a href="mailto:lucipycode101@gmail.com" class="text-gray-400 hover:text-blue-400 mb-2">lucipycode101@gmail.com</a>
+                    <div class="space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-blue-400">Privacy Policy</a>
+                        <a href="#" class="text-gray-400 hover:text-blue-400">Terms of Use</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const ocrBtn = document.getElementById('ocrBtn');
+        const status = document.getElementById('status');
+        const originalPreview = document.getElementById('originalPreview');
+        const textOutput = document.getElementById('textOutput');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    originalPreview.src = reader.result;
+                    originalPreview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        ocrBtn.addEventListener('click', async () => {
+            const file = imageInput.files[0];
+            if (!file) {
+                alert('Please upload an image.');
+                return;
+            }
+
+            status.classList.remove('hidden');
+            status.textContent = 'Processing...';
+
+            try {
+                const { data: { text } } = await Tesseract.recognize(file, 'eng', {
+                    logger: (m) => {
+                        if (m.status === 'recognizing text') {
+                            status.textContent = `Processing: ${Math.round(m.progress * 100)}%`;
+                        }
+                    }
+                });
+
+                status.classList.add('hidden');
+                textOutput.textContent = text || 'No text detected.';
+                textOutput.classList.remove('hidden');
+
+                // Create downloadable text file
+                const blob = new Blob([text], { type: 'text/plain' });
+                const dataUrl = URL.createObjectURL(blob);
+                downloadBtn.href = dataUrl;
+                const originalName = file.name.split('.').slice(0, -1).join('.') || 'extracted_text';
+                downloadBtn.download = `${originalName}_text.txt`;
+                downloadBtn.classList.remove('hidden');
+            } catch (e) {
+                status.classList.add('hidden');
+                alert('Error processing image. Please ensure the image contains clear text.');
+                console.error(e);
+            }
+        });
+    </script>
+</body>
+</html>

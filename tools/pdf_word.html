@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="google-adsense-account" content="ca-pub-9818873189641493">
+    <meta name="google-site-verification" content="iAN9AM3kAC3hCJHmgKJ5ICF0IGo1x-Rq7O4oIfyPv_o" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF to Word Converter</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Arial', sans-serif;
+    }
+
+    body {
+      background-color: #f0f4f8;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #007bff;
+      margin-bottom: 20px;
+      font-size: 2rem;
+    }
+
+    .upload-section, .preview-section {
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .upload-box {
+      border: 2px dashed #007bff;
+      padding: 20px;
+      border-radius: 8px;
+      background-color: #e6f0ff;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .upload-box:hover {
+      background-color: #d0e4ff;
+    }
+
+    .upload-box p {
+      color: #007bff;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    button {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+      margin: 10px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+
+    #preview {
+      margin-top: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #007bff;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #f8f9fa;
+      white-space: pre-wrap;
+      text-align: left;
+    }
+
+    .error {
+      color: #dc3545;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin: 10px;
+        padding: 15px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .upload-box p {
+        font-size: 1rem;
+      }
+
+      button {
+        width: 100%;
+        padding: 12px;
+      }
+
+      #preview {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>PDF to Word Converter</h1>
+    <div class="upload-section">
+      <label for="pdfInput" class="upload-box">
+        <p>Click or drag to upload a PDF file</p>
+        <input type="file" id="pdfInput" accept=".pdf">
+      </label>
+      <p id="fileName"></p>
+      <button id="convertBtn" disabled>Convert to Word</button>
+    </div>
+    <div class="preview-section">
+      <h2>Preview</h2>
+      <div id="preview">No content to preview yet.</div>
+      <button id="downloadBtn" disabled>Download Word File</button>
+      <p id="error" class="error"></p>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.8.2/docx.min.js"></script>
+  <script>
+    const pdfInput = document.getElementById('pdfInput');
+    const convertBtn = document.getElementById('convertBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const fileNameDisplay = document.getElementById('fileName');
+    const preview = document.getElementById('preview');
+    const errorDisplay = document.getElementById('error');
+
+    let extractedText = '';
+    let docxBlob = null;
+
+    // Handle file selection
+    pdfInput.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (file.type !== 'application/pdf') {
+        errorDisplay.textContent = 'Please upload a valid PDF file.';
+        convertBtn.disabled = true;
+        return;
+      }
+
+      fileNameDisplay.textContent = file.name;
+      convertBtn.disabled = false;
+      errorDisplay.textContent = '';
+      preview.textContent = 'Loading preview...';
+      downloadBtn.disabled = true;
+      docxBlob = null;
+
+      // Extract text for preview
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        extractedText = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          extractedText += content.items.map(item => item.str).join(' ') + '\n';
+        }
+        preview.textContent = extractedText || 'No text content found in the PDF.';
+      } catch (err) {
+        preview.textContent = 'Unable to preview PDF content.';
+        errorDisplay.textContent = 'Error loading PDF: ' + err.message;
+        convertBtn.disabled = true;
+      }
+    });
+
+    // Handle drag and drop
+    const uploadBox = document.querySelector('.upload-box');
+    uploadBox.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadBox.style.backgroundColor = '#d0e4ff';
+    });
+
+    uploadBox.addEventListener('dragleave', () => {
+      uploadBox.style.backgroundColor = '#e6f0ff';
+    });
+
+    uploadBox.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadBox.style.backgroundColor = '#e6f0ff';
+      const file = e.dataTransfer.files[0];
+      pdfInput.files = e.dataTransfer.files;
+      pdfInput.dispatchEvent(new Event('change'));
+    });
+
+    // Handle conversion
+    convertBtn.addEventListener('click', async () => {
+      if (!extractedText) return;
+
+      convertBtn.disabled = true;
+      convertBtn.textContent = 'Converting...';
+      errorDisplay.textContent = '';
+
+      try {
+        // Create a new DOCX document
+        const doc = new docx.Document({
+          sections: [{
+            properties: {},
+            children: [
+              new docx.Paragraph({
+                children: [new docx.TextRun(extractedText)],
+              }),
+            ],
+          }],
+        });
+
+        // Generate DOCX file
+        docxBlob = await docx.Packer.toBlob(doc);
+        preview.textContent = 'Conversion complete! Ready to download.';
+        downloadBtn.disabled = false;
+      } catch (err) {
+        errorDisplay.textContent = 'Conversion failed: ' + err.message;
+        preview.textContent = 'Conversion failed.';
+      } finally {
+        convertBtn.disabled = false;
+        convertBtn.textContent = 'Convert to Word';
+      }
+    });
+
+    // Handle download
+    downloadBtn.addEventListener('click', () => {
+      if (!docxBlob) return;
+
+      const url = URL.createObjectURL(docxBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'converted.docx';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>

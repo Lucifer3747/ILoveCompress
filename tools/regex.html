@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-adsense-account" content="ca-pub-9818873189641493">
+    <meta name="google-site-verification" content="iAN9AM3kAC3hCJHmgKJ5ICF0IGo1x-Rq7O4oIfyPv_o" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regex Tester | Multi-Tool</title>
+    <style>
+        :root {
+            --primary-color: #2196F3;
+            --secondary-color: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 90%;
+            margin: 2rem auto;
+            padding: 20px;
+        }
+
+        .tool-card {
+            background-color: var(--secondary-color);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.1);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            margin: 1rem 0;
+        }
+
+        .regex-input {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        textarea {
+            height: 150px;
+            resize: vertical;
+        }
+
+        .flags-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .flag-btn {
+            background-color: #e3f2fd;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .flag-btn.active {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+        }
+
+        .results {
+            margin: 1rem 0;
+            padding: 1rem;
+            border: 2px solid #e3f2fd;
+            border-radius: 8px;
+        }
+
+        .match {
+            background-color: #fff9c4;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .error {
+            color: #f44336;
+            margin: 0.5rem 0;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .action-btn {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 10px;
+            }
+
+            .tool-card {
+                padding: 1.5rem;
+            }
+
+            .regex-input {
+                flex-direction: column;
+            }
+
+            textarea {
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tool-card">
+            <h1>Regex Tester</h1>
+            
+            <div class="input-group">
+                <div class="regex-input">
+                    <input type="text" id="regex-pattern" placeholder="Enter regular expression">
+                    <div class="flags-group" id="flags">
+                        <button class="flag-btn" data-flag="g">Global (g)</button>
+                        <button class="flag-btn" data-flag="i">Case Insensitive (i)</button>
+                        <button class="flag-btn" data-flag="m">Multiline (m)</button>
+                        <button class="flag-btn" data-flag="s">Dot All (s)</button>
+                    </div>
+                </div>
+                
+                <textarea id="test-string" placeholder="Enter test string..."></textarea>
+                <div class="button-group">
+                    <button class="action-btn" onclick="testRegex()">Test Regex</button>
+                </div>
+            </div>
+
+            <div class="results">
+                <h3>Matches:</h3>
+                <div id="match-results"></div>
+                <div id="error-message" class="error"></div>
+                
+                <h3 style="margin-top: 1rem;">Replace:</h3>
+                <input type="text" id="replace-pattern" placeholder="Replacement pattern">
+                <div id="replace-results"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const flags = document.getElementById('flags');
+        const matchResults = document.getElementById('match-results');
+        const errorMessage = document.getElementById('error-message');
+        const replaceResults = document.getElementById('replace-results');
+
+        // Flag toggle functionality
+        flags.querySelectorAll('.flag-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.classList.toggle('active');
+                testRegex();
+            });
+        });
+
+        // Main regex testing function
+        function testRegex() {
+            try {
+                errorMessage.textContent = '';
+                const pattern = document.getElementById('regex-pattern').value;
+                const testString = document.getElementById('test-string').value;
+                const replacePattern = document.getElementById('replace-pattern').value;
+                const activeFlags = Array.from(flags.querySelectorAll('.active'))
+                                      .map(btn => btn.dataset.flag)
+                                      .join('');
+
+                // Test for matches
+                const regex = new RegExp(pattern, activeFlags);
+                const matches = [...testString.matchAll(regex)];
+                
+                // Display matches
+                if (matches.length > 0) {
+                    let highlighted = testString;
+                    matches.forEach(match => {
+                        highlighted = highlighted.replace(match[0], 
+                            `<span class="match">${match[0]}</span>`);
+                    });
+                    matchResults.innerHTML = highlighted;
+                } else {
+                    matchResults.textContent = 'No matches found';
+                }
+
+                // Show replace results
+                if (replacePattern) {
+                    const replaced = testString.replace(regex, replacePattern);
+                    replaceResults.textContent = replaced;
+                } else {
+                    replaceResults.textContent = '';
+                }
+
+            } catch (error) {
+                errorMessage.textContent = `Error: ${error.message}`;
+                matchResults.textContent = '';
+                replaceResults.textContent = '';
+            }
+        }
+
+        // Real-time updates
+        document.getElementById('regex-pattern').addEventListener('input', testRegex);
+        document.getElementById('test-string').addEventListener('input', testRegex);
+        document.getElementById('replace-pattern').addEventListener('input', testRegex);
+    </script>
+</body>
+</html>

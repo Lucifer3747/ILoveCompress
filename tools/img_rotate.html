@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-adsense-account" content="ca-pub-9818873189641493">
+    <meta name="google-site-verification" content="iAN9AM3kAC3hCJHmgKJ5ICF0IGo1x-Rq7O4oIfyPv_o" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Rotator - Tools Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #f0f9ff; }
+        .btn-hover { transition: background-color 0.3s ease, transform 0.3s ease; }
+        .btn-hover:hover { background-color: #1d4ed8; transform: translateY(-2px); }
+        .preview-img { max-width: 100%; height: auto; border-radius: 8px; }
+        .container { max-width: 1200px; }
+        @media (max-width: 640px) {
+            .preview-img { max-height: 300px; }
+            .flex-col { flex-direction: column; }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+    <!-- Header -->
+       <header class="bg-white shadow-sm py-4" id="header">
+     <div class="container mx-auto px-4 flex justify-between items-center">
+        <div class="text-2xl font-bold text-blue-700">
+            <img src="../logo.avif" alt="I love Compress" class="h-14">
+        </div>
+        <nav class="space-x-6">
+            <a href="../index.html" class="nav-link text-gray-600 hover:text-blue-700">Home</a>
+            <a href="../index.html#tools" class="nav-link text-gray-600 hover:text-blue-700">Tools</a>
+            <a href="../index.html#contact" class="nav-link text-gray-600 hover:text-blue-700">Contact</a>
+        </nav>
+        <div class="flex items-center space-x-4">
+            <a href="mailto:lucipycode101@gmail.com" class="text-gray-600 hover:text-blue-700">lucipycode101@gmail.com</a>
+            <button id="theme-toggle" class="text-gray-600 hover:text-blue-700">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </div>
+</header>
+
+
+    <!-- Main Section -->
+    <section class="py-12">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl md:text-4xl font-bold text-blue-700 mb-6 text-center">Image Rotator</h1>
+            <p class="text-lg text-gray-600 mb-8 text-center">Rotate your images to any angle with ease.</p>
+
+            <div class="bg-white p-8 rounded-lg shadow-md max-w-3xl mx-auto">
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-2">Upload Image</label>
+                    <input type="file" id="imageInput" accept="image/*" class="w-full p-2 border border-gray-300 rounded">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-2">Rotation Angle</label>
+                    <div class="flex gap-4">
+                        <button id="rotate90" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded btn-hover">90°</button>
+                        <button id="rotate180" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded btn-hover">180°</button>
+                        <button id="rotate270" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded btn-hover">270°</button>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-2">Custom Angle (degrees)</label>
+                    <input type="number" id="customAngle" class="w-full p-2 border border-gray-300 rounded" placeholder="e.g., 45">
+                </div>
+                <button id="rotateBtn" class="w-full bg-blue-600 text-white px-4 py-2 rounded btn-hover">Rotate Image</button>
+            </div>
+
+            <div class="mt-12 flex flex-col md:flex-row gap-8">
+                <div class="flex-1">
+                    <h2 class="text-2xl font-semibold text-blue-700 mb-4">Original Image</h2>
+                    <img id="originalPreview" class="preview-img hidden" alt="Original Image">
+                </div>
+                <div class="flex-1">
+                    <h2 class="text-2xl font-semibold text-blue-700 mb-4">Rotated Image</h2>
+                    <img id="rotatedPreview" class="preview-img hidden" alt="Rotated Image">
+                    <a id="downloadBtn" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded btn-hover hidden">Download Rotated Image</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-10">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="text-2xl font-bold text-blue-400">I Love Compress</div>
+                    <p class="text-gray-400">Simplifying your digital life.</p>
+                </div>
+                <div class="flex flex-col items-center md:items-end">
+                    <a href="mailto:lucipycode101@gmail.com" class="text-gray-400 hover:text-blue-400 mb-2">lucipycode101@gmail.com</a>
+                    <div class="space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-blue-400">Privacy Policy</a>
+                        <a href="#" class="text-gray-400 hover:text-blue-400">Terms of Use</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const rotate90 = document.getElementById('rotate90');
+        const rotate180 = document.getElementById('rotate180');
+        const rotate270 = document.getElementById('rotate270');
+        const customAngle = document.getElementById('customAngle');
+        const rotateBtn = document.getElementById('rotateBtn');
+        const originalPreview = document.getElementById('originalPreview');
+        const rotatedPreview = document.getElementById('rotatedPreview');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let selectedAngle = 0;
+
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    originalPreview.src = reader.result;
+                    originalPreview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        rotate90.addEventListener('click', () => {
+            selectedAngle = 90;
+            rotateImage();
+        });
+
+        rotate180.addEventListener('click', () => {
+            selectedAngle = 180;
+            rotateImage();
+        });
+
+        rotate270.addEventListener('click', () => {
+            selectedAngle = 270;
+            rotateImage();
+        });
+
+        rotateBtn.addEventListener('click', () => {
+            selectedAngle = parseFloat(customAngle.value) || 0;
+            rotateImage();
+        });
+
+        function rotateImage() {
+            const file = imageInput.files[0];
+            if (!file) {
+                alert('Please upload an image.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = () => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // Calculate canvas size based on rotation
+                    const radians = selectedAngle * Math.PI / 180;
+                    const cos = Math.abs(Math.cos(radians));
+                    const sin = Math.abs(Math.sin(radians));
+                    canvas.width = img.width * cos + img.height * sin;
+                    canvas.height = img.width * sin + img.height * cos;
+
+                    // Rotate and draw image
+                    ctx.translate(canvas.width / 2, canvas.height / 2);
+                    ctx.rotate(radians);
+                    ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+                    try {
+                        canvas.toBlob((blob) => {
+                            const dataUrl = URL.createObjectURL(blob);
+                            rotatedPreview.src = dataUrl;
+                            rotatedPreview.classList.remove('hidden');
+
+                            downloadBtn.href = dataUrl;
+                            const originalName = file.name.split('.').slice(0, -1).join('.') || 'rotated_image';
+                            downloadBtn.download = `${originalName}_rotated.jpg`;
+                            downloadBtn.classList.remove('hidden');
+                        }, 'image/jpeg', 0.8);
+                    } catch (e) {
+                        alert('Error processing image. If the image is from another website, it may have cross-origin restrictions.');
+                        console.error(e);
+                    }
+                };
+                img.src = reader.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>

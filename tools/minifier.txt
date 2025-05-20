@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-adsense-account" content="ca-pub-9818873189641493">
+    <meta name="google-site-verification" content="iAN9AM3kAC3hCJHmgKJ5ICF0IGo1x-Rq7O4oIfyPv_o" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML/CSS/JS Minifier</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            margin: 1rem;
+        }
+
+        h1 {
+            color: #007bff;
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            color: #007bff;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 0.8rem;
+            border:
+
+ 2px solid #007bff;
+            border-radius: 5px;
+            resize: none;
+            font-size: 1rem;
+            box-sizing: border-box;
+            margin-bottom: 1rem;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #0056b3;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            margin-bottom: 1rem;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #0056b3;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            padding: 0.8rem;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .clear-btn {
+            grid-column: span 2;
+        }
+
+        .output {
+            background-color: #e6f0ff;
+            padding: 1rem;
+            border-radius: 5px;
+            min-height: 100px;
+            color: #0056b3;
+            font-size: 1rem;
+            word-break: break-all;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            textarea {
+                height: 120px;
+                font-size: 0.9rem;
+            }
+
+            select {
+                font-size: 0.9rem;
+            }
+
+            button {
+                font-size: 0.9rem;
+            }
+
+            .output {
+                font-size: 0.9rem;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+
+            .clear-btn {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HTML/CSS/JS Minifier</h1>
+        <div class="input-group">
+            <label for="codeType">Code Type</label>
+            <select id="codeType">
+                <option value="html">HTML</option>
+                <option value="css">CSS</option>
+                <option value="js">JavaScript</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="codeInput">Input Code</label>
+            <textarea id="codeInput" placeholder="Paste your HTML, CSS, or JavaScript code here..."></textarea>
+        </div>
+        <div class="button-group">
+            <button onclick="minifyCode()">Minify</button>
+            <button class="clear-btn" onclick="clearCode()">Clear</button>
+        </div>
+        <div class="output" id="output">Minified code will appear here...</div>
+    </div>
+
+    <script>
+        const codeInput = document.getElementById('codeInput');
+        const codeType = document.getElementById('codeType');
+        const output = document.getElementById('output');
+
+        function minifyCode() {
+            const code = codeInput.value.trim();
+            const type = codeType.value;
+
+            if (!code) {
+                output.textContent = 'Please enter code to minify.';
+                return;
+            }
+
+            let minified = code;
+
+            try {
+                if (type === 'html') {
+                    // Remove comments, extra whitespace, and line breaks
+                    minified = code
+                        .replace(/<!--[\s\S]*?-->/g, '') // Remove HTML comments
+                        .replace(/\s+/g, ' ') // Collapse multiple spaces
+                        .replace(/>\s+</g, '><') // Remove spaces between tags
+                        .trim();
+                } else if (type === 'css') {
+                    // Remove comments, extra whitespace, and line breaks
+                    minified = code
+                        .replace(/\/\*[\s\S]*?\*\//g, '') // Remove CSS comments
+                        .replace(/\s+/g, ' ') // Collapse multiple spaces
+                        .replace(/\s*([{}:;])\s*/g, '$1') // Remove spaces around brackets, colons, semicolons
+                        .replace(/;}/g, '}') // Remove unnecessary semicolons before closing braces
+                        .trim();
+                } else if (type === 'js') {
+                    // Remove comments (single-line and multi-line), extra whitespace
+                    minified = code
+                        .replace(/\/\/.*/g, '') // Remove single-line comments
+                        .replace(/\/\*[\s\S]*?\*\//g, '') // Remove multi-line comments
+                        .replace(/\s+/g, ' ') // Collapse multiple spaces
+                        .replace(/\s*([{}:;,\(\)\[\]])\s*/g, '$1') // Remove spaces around operators
+                        .trim();
+                }
+                output.textContent = minified || 'No changes made to the code.';
+            } catch (e) {
+                output.textContent = 'Error minifying code. Please check your input.';
+            }
+        }
+
+        function clearCode() {
+            codeInput.value = '';
+            output.textContent = 'Minified code will appear here...';
+        }
+    </script>
+</body>
+</html>

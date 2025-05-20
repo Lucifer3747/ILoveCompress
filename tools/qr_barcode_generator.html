@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-adsense-account" content="ca-pub-9818873189641493">
+    <meta name="google-site-verification" content="iAN9AM3kAC3hCJHmgKJ5ICF0IGo1x-Rq7O4oIfyPv_o" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR & Barcode Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            margin: 1rem;
+        }
+
+        h1 {
+            color: #007bff;
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            color: #007bff;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 0.8rem;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            resize: none;
+            font-size: 1rem;
+            box-sizing: border-box;
+            margin-bottom: 1rem;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #0056b3;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            padding: 0.8rem;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .output {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #e6f0ff;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .output canvas,
+        .output svg {
+            max-width: 100%;
+            margin: 0.5rem 0;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+
+        .error {
+            color: #d9534f;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            textarea {
+                height: 80px;
+                font-size: 0.9rem;
+            }
+
+            button {
+                font-size: 0.9rem;
+            }
+
+            .output canvas,
+            .output svg {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QR & Barcode Generator</h1>
+        <div class="input-group">
+            <label for="textInput">Text or URL</label>
+            <textarea id="textInput" placeholder="Enter text or URL to encode (e.g., https://example.com)"></textarea>
+        </div>
+        <div class="button-group">
+            <button id="generateQRBtn">Generate QR Code</button>
+            <button id="generateBarcodeBtn">Generate Barcode</button>
+            <button id="clearBtn">Clear</button>
+        </div>
+        <div class="output" id="output">
+            <p>Generated codes will appear here...</p>
+        </div>
+    </div>
+
+    <!-- Load external libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
+    <script>
+        // Ensure DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const textInput = document.getElementById('textInput');
+            const output = document.getElementById('output');
+            const generateQRBtn = document.getElementById('generateQRBtn');
+            const generateBarcodeBtn = document.getElementById('generateBarcodeBtn');
+            const clearBtn = document.getElementById('clearBtn');
+
+            // Check if libraries are loaded
+            if (!window.QRCode || !window.JsBarcode) {
+                output.innerHTML = '<p class="error">Error: Required libraries (qrcode.js or JsBarcode) failed to load. Please check your internet connection or try again later.</p>';
+                generateQRBtn.disabled = true;
+                generateBarcodeBtn.disabled = true;
+                return;
+            }
+
+            function generateQR() {
+                const text = textInput.value.trim();
+                if (!text) {
+                    output.innerHTML = '<p class="error">Please enter text or a URL to encode.</p>';
+                    return;
+                }
+
+                output.innerHTML = ''; // Clear previous output
+                const qrDiv = document.createElement('div');
+                output.appendChild(qrDiv);
+
+                try {
+                    new QRCode(qrDiv, {
+                        text: text,
+                        width: 200,
+                        height: 200,
+                        colorDark: '#000000',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+
+                    // Add download button
+                    const downloadBtn = document.createElement('button');
+                    downloadBtn.textContent = 'Download QR Code';
+                    downloadBtn.onclick = () => downloadCanvas(qrDiv.querySelector('canvas'), 'qr_code.png');
+                    output.appendChild(downloadBtn);
+                } catch (e) {
+                    output.innerHTML = '<p class="error">Error generating QR code. Please check your input.</p>';
+                }
+            }
+
+            function generateBarcode() {
+                const text = textInput.value.trim();
+                if (!text) {
+                    output.innerHTML = '<p class="error">Please enter text or a URL to encode.</p>';
+                    return;
+                }
+
+                output.innerHTML = ''; // Clear previous output
+                const barcodeSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                barcodeSvg.setAttribute('jsbarcode-format', 'CODE128');
+                barcodeSvg.setAttribute('jsbarcode-value', text);
+                barcodeSvg.setAttribute('jsbarcode-width', '2');
+                barcodeSvg.setAttribute('jsbarcode-height', '100');
+                output.appendChild(barcodeSvg);
+
+                try {
+                    JsBarcode(barcodeSvg).init();
+
+                    // Add download button
+                    const downloadBtn = document.createElement('button');
+                    downloadBtn.textContent = 'Download Barcode';
+                    downloadBtn.onclick = () => downloadSvg(barcodeSvg, 'barcode.svg');
+                    output.appendChild(downloadBtn);
+                } catch (e) {
+                    output.innerHTML = '<p class="error">Error generating barcode. Please check your input.</p>';
+                }
+            }
+
+            function downloadCanvas(canvas, filename) {
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }
+
+            function downloadSvg(svg, filename) {
+                const serializer = new XMLSerializer();
+                const svgString = serializer.serializeToString(svg);
+                const blob = new Blob([svgString], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = url;
+                link.click();
+                URL.revokeObjectURL(url);
+            }
+
+            function clearInput() {
+                textInput.value = '';
+                output.innerHTML = '<p>Generated codes will appear here...</p>';
+            }
+
+            // Attach event listeners
+            generateQRBtn.addEventListener('click', generateQR);
+            generateBarcodeBtn.addEventListener('click', generateBarcode);
+            clearBtn.addEventListener('click', clearInput);
+        });
+    </script>
+</body>
+</html>

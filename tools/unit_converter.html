@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-adsense-account" content="ca-pub-9818873189641493">
+    <meta name="google-site-verification" content="iAN9AM3kAC3hCJHmgKJ5ICF0IGo1x-Rq7O4oIfyPv_o" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            margin: 1rem;
+        }
+
+        h1 {
+            color: #007bff;
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            color: #007bff;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        select:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #0056b3;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        .conversion-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .output {
+            background-color: #e6f0ff;
+            padding: 1rem;
+            border-radius: 5px;
+            min-height: 60px;
+            color: #0056b3;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .error {
+            color: #d9534f;
+            font-weight: bold;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            select, input[type="number"] {
+                font-size: 0.9rem;
+            }
+
+            button {
+                font-size: 0.9rem;
+            }
+
+            .output {
+                font-size: 0.9rem;
+            }
+
+            .conversion-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Unit Converter</h1>
+        <div class="input-group">
+            <label for="unitType">Unit Type</label>
+            <select id="unitType">
+                <option value="length">Length</option>
+                <option value="weight">Weight</option>
+                <option value="temperature">Temperature</option>
+                <option value="volume">Volume</option>
+            </select>
+        </div>
+        <div class="conversion-group">
+            <div class="input-group">
+                <label for="fromUnit">From</label>
+                <select id="fromUnit">
+                    <!-- Options populated by JavaScript -->
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="toUnit">To</label>
+                <select id="toUnit">
+                    <!-- Options populated by JavaScript -->
+                </select>
+            </div>
+        </div>
+        <div class="input-group">
+            <label for="valueInput">Value</label>
+            <input type="number" id="valueInput" placeholder="Enter value" step="any">
+        </div>
+        <div class="input-group">
+            <button id="convertBtn">Convert</button>
+        </div>
+        <div class="output" id="output">Conversion result will appear here...</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const unitType = document.getElementById('unitType');
+            const fromUnit = document.getElementById('fromUnit');
+            const toUnit = document.getElementById('toUnit');
+            const valueInput = document.getElementById('valueInput');
+            const convertBtn = document.getElementById('convertBtn');
+            const output = document.getElementById('output');
+
+            // Unit definitions
+            const units = {
+                length: [
+                    { name: 'Meter (m)', value: 'meter' },
+                    { name: 'Kilometer (km)', value: 'kilometer' },
+                    { name: 'Centimeter (cm)', value: 'centimeter' },
+                    { name: 'Mile (mi)', value: 'mile' },
+                    { name: 'Foot (ft)', value: 'foot' }
+                ],
+                weight: [
+                    { name: 'Kilogram (kg)', value: 'kilogram' },
+                    { name: 'Gram (g)', value: 'gram' },
+                    { name: 'Pound (lb)', value: 'pound' },
+                    { name: 'Ounce (oz)', value: 'ounce' }
+                ],
+                temperature: [
+                    { name: 'Celsius (°C)', value: 'celsius' },
+                    { name: 'Fahrenheit (°F)', value: 'fahrenheit' },
+                    { name: 'Kelvin (K)', value: 'kelvin' }
+                ],
+                volume: [
+                    { name: 'Liter (L)', value: 'liter' },
+                    { name: 'Milliliter (mL)', value: 'milliliter' },
+                    { name: 'Gallon (gal)', value: 'gallon' },
+                    { name: 'Cubic Meter (m³)', value: 'cubicmeter' }
+                ]
+            };
+
+            // Conversion functions with consistent naming
+            const conversions = {
+                length: {
+                    meter: { toBase: v => v, fromBase: v => v }, // Base unit: meter
+                    kilometer: { toBase: v => v * 1000, fromBase: v => v / 1000 },
+                    centimeter: { toBase: v => v / 100, fromBase: v => v * 100 },
+                    mile: { toBase: v => v * 1609.34, fromBase: v => v / 1609.34 },
+                    foot: { toBase: v => v * 0.3048, fromBase: v => v / 0.3048 }
+                },
+                weight: {
+                    kilogram: { toBase: v => v, fromBase: v => v }, // Base unit: kilogram
+                    gram: { toBase: v => v / 1000, fromBase: v => v * 1000 },
+                    pound: { toBase: v => v * 0.453592, fromBase: v => v / 0.453592 },
+                    ounce: { toBase: v => v * 0.0283495, fromBase: v => v / 0.0283495 }
+                },
+                temperature: {
+                    celsius: {
+                        toCelsius: v => v,
+                        toFahrenheit: v => (v * 9 / 5) + 32,
+                        toKelvin: v => v + 273.15
+                    },
+                    fahrenheit: {
+                        toCelsius: v => (v - 32) * 5 / 9,
+                        toFahrenheit: v => v,
+                        toKelvin: v => ((v - 32) * 5 / 9) + 273.15
+                    },
+                    kelvin: {
+                        toCelsius: v => v - 273.15,
+                        toFahrenheit: v => ((v - 273.15) * 9 / 5) + 32,
+                        toKelvin: v => v
+                    }
+                },
+                volume: {
+                    liter: { toBase: v => v, fromBase: v => v }, // Base unit: liter
+                    milliliter: { toBase: v => v / 1000, fromBase: v => v * 1000 },
+                    gallon: { toBase: v => v * 3.78541, fromBase: v => v / 3.78541 },
+                    cubicmeter: { toBase: v => v * 1000, fromBase: v => v / 1000 }
+                }
+            };
+
+            // Populate unit dropdowns based on unit type
+            function updateUnits() {
+                const selectedType = unitType.value;
+                fromUnit.innerHTML = '';
+                toUnit.innerHTML = '';
+
+                if (!units[selectedType]) {
+                    console.error(`Invalid unit type: ${selectedType}`);
+                    output.innerHTML = '<span class="error">Invalid unit type selected.</span>';
+                    return;
+                }
+
+                units[selectedType].forEach(unit => {
+                    const option1 = document.createElement('option');
+                    option1.value = unit.value;
+                    option1.textContent = unit.name;
+                    fromUnit.appendChild(option1);
+                    const option2 = document.createElement('option');
+                    option2.value = unit.value;
+                    option2.textContent = unit.name;
+                    toUnit.appendChild(option2);
+                });
+
+                // Set default selections
+                fromUnit.selectedIndex = 0;
+                if (toUnit.options.length > 1) {
+                    toUnit.selectedIndex = 1; // Different unit for "to"
+                } else {
+                    toUnit.selectedIndex = 0;
+                }
+            }
+
+            // Convert value
+            function convert() {
+                const value = parseFloat(valueInput.value);
+                const type = unitType.value;
+                const from = fromUnit.value;
+                const to = toUnit.value;
+
+                if (isNaN(value)) {
+                    output.innerHTML = '<span class="error">Please enter a valid number.</span>';
+                    return;
+                }
+
+                if (!units[type] || !conversions[type]) {
+                    console.error(`Invalid unit type: ${type}`);
+                    output.innerHTML = '<span class="error">Invalid unit type selected.</span>';
+                    return;
+                }
+
+                if (!conversions[type][from] || !conversions[type][to]) {
+                    console.error(`Invalid units: from=${from}, to=${to}`);
+                    output.innerHTML = '<span class="error">Invalid unit selected.</span>';
+                    return;
+                }
+
+                try {
+                    let result;
+                    if (type === 'temperature') {
+                        // Direct temperature conversion
+                        if (from === to) {
+                            result = value;
+                        } else {
+                            const toFunction = conversions.temperature[from][`to${to.charAt(0).toUpperCase() + to.slice(1)}`];
+                            if (!toFunction) {
+                                throw new Error(`No conversion from ${from} to ${to}`);
+                            }
+                            result = toFunction(value);
+                        }
+                    } else {
+                        // Convert to base unit, then to target unit
+                        const toBase = conversions[type][from].toBase;
+                        const fromBase = conversions[type][to].fromBase;
+                        if (!toBase || !fromBase) {
+                            throw new Error(`Conversion functions missing for ${from} or ${to}`);
+                        }
+                        const baseValue = toBase(value);
+                        result = fromBase(baseValue);
+                    }
+
+                    // Round to 4 decimal places, removing trailing zeros
+                    result = parseFloat(result.toFixed(4)).toString();
+                    output.textContent = `${value} ${fromUnit.options[fromUnit.selectedIndex].text} = ${result} ${toUnit.options[toUnit.selectedIndex].text}`;
+                } catch (e) {
+                    console.error(`Conversion error: ${e.message}, type=${type}, from=${from}, to=${to}`);
+                    output.innerHTML = '<span class="error">Error performing conversion: Invalid unit or value.</span>';
+                }
+            }
+
+            // Initialize units
+            updateUnits();
+
+            // Event listeners
+            unitType.addEventListener('change', updateUnits);
+            convertBtn.addEventListener('click', convert);
+            valueInput.addEventListener('input', () => {
+                if (valueInput.value.trim() === '') {
+                    output.textContent = 'Conversion result will appear here...';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-adsense-account" content="ca-pub-9818873189641493">
+    <meta name="google-site-verification" content="iAN9AM3kAC3hCJHmgKJ5ICF0IGo1x-Rq7O4oIfyPv_o" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan EMI Calculator | Multi-Tool</title>
+    <style>
+        :root {
+            --primary-color: #2196F3;
+            --secondary-color: #ffffff;
+            --accent-color: #4CAF50;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 90%;
+            margin: 2rem auto;
+            padding: 20px;
+        }
+
+        .calculator-card {
+            background-color: var(--secondary-color);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.1);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #666;
+            font-weight: bold;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        input[type="number"], input[type="range"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input[type="range"] {
+            padding: 0;
+            height: 8px;
+            background: #ddd;
+            border-radius: 5px;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .tenure-toggle {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .toggle-btn {
+            padding: 8px 20px;
+            border: 2px solid var(--primary-color);
+            border-radius: 20px;
+            background: transparent;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--primary-color);
+            color: var(--secondary-color);
+        }
+
+        button.calculate-btn {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin: 1rem 0;
+        }
+
+        button.calculate-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .results-container {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .result-box {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .result-value {
+            color: var(--primary-color);
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 10px;
+            }
+
+            .calculator-card {
+                padding: 1.5rem;
+            }
+
+            .input-container {
+                flex-direction: column;
+            }
+
+            .result-value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="calculator-card">
+            <h1>Loan EMI Calculator</h1>
+            <div class="input-group">
+                <label>Loan Amount (₹)</label>
+                <div class="input-container">
+                    <input type="number" id="loanAmount" min="1000" step="1000" value="100000">
+                    <input type="range" id="loanAmountRange" min="1000" max="1000000" step="1000" value="100000">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Annual Interest Rate (%)</label>
+                <div class="input-container">
+                    <input type="number" id="interestRate" min="1" max="30" step="0.1" value="8.5">
+                    <input type="range" id="interestRateRange" min="1" max="30" step="0.1" value="8.5">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Loan Tenure</label>
+                <div class="tenure-toggle">
+                    <button class="toggle-btn active" id="yearsBtn">Years</button>
+                    <button class="toggle-btn" id="monthsBtn">Months</button>
+                </div>
+                <div class="input-container">
+                    <input type="number" id="loanTenure" min="1" value="5">
+                    <input type="range" id="loanTenureRange" min="1" max="30" value="5">
+                </div>
+            </div>
+
+            <button class="calculate-btn" onclick="calculateEMI()">Calculate EMI</button>
+
+            <div class="results-container" id="results">
+                <div class="result-box">
+                    <div class="result-value" id="emiAmount">₹0</div>
+                    <div class="result-label">Monthly EMI</div>
+                </div>
+                <div class="result-box">
+                    <div class="result-value" id="totalInterest">₹0</div>
+                    <div class="result-label">Total Interest Payable</div>
+                </div>
+                <div class="result-box">
+                    <div class="result-value" id="totalAmount">₹0</div>
+                    <div class="result-label">Total Payment (Principal + Interest)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isYears = true;
+        
+        // Initialize input sync
+        syncInputs('loanAmount', 'loanAmountRange');
+        syncInputs('interestRate', 'interestRateRange');
+        syncInputs('loanTenure', 'loanTenureRange');
+
+        // Toggle tenure type
+        document.getElementById('yearsBtn').addEventListener('click', () => toggleTenure(true));
+        document.getElementById('monthsBtn').addEventListener('click', () => toggleTenure(false));
+
+        function toggleTenure(years) {
+            isYears = years;
+            document.getElementById('yearsBtn').classList.toggle('active', years);
+            document.getElementById('monthsBtn').classList.toggle('active', !years);
+            
+            const tenureInput = document.getElementById('loanTenure');
+            const tenureRange = document.getElementById('loanTenureRange');
+            
+            if (years) {
+                tenureInput.max = 30;
+                tenureRange.max = 30;
+                tenureInput.value = Math.min(30, Math.ceil(tenureInput.value / 12));
+            } else {
+                tenureInput.max = 360;
+                tenureRange.max = 360;
+                tenureInput.value = Math.min(360, tenureInput.value * 12);
+            }
+        }
+
+        function syncInputs(numberId, rangeId) {
+            const numberInput = document.getElementById(numberId);
+            const rangeInput = document.getElementById(rangeId);
+
+            numberInput.addEventListener('input', () => {
+                rangeInput.value = numberInput.value;
+            });
+
+            rangeInput.addEventListener('input', () => {
+                numberInput.value = rangeInput.value;
+            });
+        }
+
+        function calculateEMI() {
+            const principal = parseFloat(document.getElementById('loanAmount').value);
+            const annualRate = parseFloat(document.getElementById('interestRate').value);
+            let tenure = parseFloat(document.getElementById('loanTenure').value);
+
+            if (isYears) {
+                tenure *= 12;
+            }
+
+            const monthlyRate = (annualRate / 12) / 100;
+            const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, tenure)) / 
+                        (Math.pow(1 + monthlyRate, tenure) - 1);
+            
+            const totalAmount = emi * tenure;
+            const totalInterest = totalAmount - principal;
+
+            // Update results
+            document.getElementById('emiAmount').textContent = `₹${emi.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+            document.getElementById('totalInterest').textContent = `₹${totalInterest.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+            document.getElementById('totalAmount').textContent = `₹${totalAmount.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+            
+            // Show results
+            document.getElementById('results').style.display = 'block';
+        }
+
+        // Initial calculation
+        calculateEMI();
+    </script>
+</body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-site-verification" content="iAN9AM3kAC3hCJHmgKJ5ICF0IGo1x-Rq7O4oIfyPv_o" />
+    <meta name="google-adsense-account" content="ca-pub-9818873189641493">
+    <meta name="keywords" content="Merge PDF, split PDF, combine PDF, extract PDF, compress PDF, convert PDF, Word to PDF, Excel to PDF, Powerpoint to PDF, PDF to JPG, JPG to PDF">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remove Duplicate Words | Multi-Tool</title>
+    <style>
+        :root {
+            --primary-color: #2196F3;
+            --secondary-color: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 90%;
+            margin: 2rem auto;
+            padding: 20px;
+        }
+
+        .tool-card {
+            background-color: var(--secondary-color);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.1);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .text-area-container {
+            position: relative;
+            margin: 1rem 0;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 1rem;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            resize: vertical;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .options-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .action-btn {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .stats {
+            color: #666;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 10px;
+            }
+
+            .tool-card {
+                padding: 1.5rem;
+            }
+
+            textarea {
+                height: 150px;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tool-card">
+            <h1>Remove Duplicate Words</h1>
+            <div class="text-area-container">
+                <textarea id="input-text" placeholder="Enter your text here..."></textarea>
+            </div>
+
+            <div class="options-group">
+                <label class="option-item">
+                    <input type="checkbox" id="case-sensitive"> Case Sensitive
+                </label>
+                <label class="option-item">
+                    <input type="checkbox" id="ignore-special"> Ignore Special Characters
+                </label>
+            </div>
+
+            <div class="stats">
+                <span id="original-count">0</span> words • 
+                <span id="unique-count">0</span> unique • 
+                <span id="duplicate-count">0</span> duplicates
+            </div>
+
+            <div class="button-group">
+                <button class="action-btn" onclick="removeDuplicates()">Remove Duplicates</button>
+                <button class="action-btn" onclick="copyToClipboard()">Copy Results</button>
+                <button class="action-btn" onclick="clearAll()">Clear All</button>
+                <button class="action-btn" onclick="sortWords()">Sort Words</button>
+            </div>
+
+            <div class="text-area-container">
+                <textarea id="output-text" readonly></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const inputText = document.getElementById('input-text');
+        const outputText = document.getElementById('output-text');
+        const caseSensitive = document.getElementById('case-sensitive');
+        const ignoreSpecial = document.getElementById('ignore-special');
+        const originalCount = document.getElementById('original-count');
+        const uniqueCount = document.getElementById('unique-count');
+        const duplicateCount = document.getElementById('duplicate-count');
+
+        function processWords(text) {
+            return text.split(/\s+/).filter(word => word.length > 0);
+        }
+
+        function cleanWord(word) {
+            let cleaned = word;
+            if (ignoreSpecial.checked) {
+                cleaned = cleaned.replace(/[^\w\s]/gi, '');
+            }
+            if (!caseSensitive.checked) {
+                cleaned = cleaned.toLowerCase();
+            }
+            return cleaned.trim();
+        }
+
+        function updateStats() {
+            const words = processWords(inputText.value);
+            const uniqueWords = [...new Set(words.map(word => cleanWord(word)))];
+            
+            originalCount.textContent = words.length;
+            uniqueCount.textContent = uniqueWords.length;
+            duplicateCount.textContent = words.length - uniqueWords.length;
+        }
+
+        function removeDuplicates() {
+            const words = processWords(inputText.value);
+            const seen = new Set();
+            const result = [];
+
+            for (const word of words) {
+                const cleaned = cleanWord(word);
+                if (!seen.has(cleaned)) {
+                    seen.add(cleaned);
+                    result.push(word);
+                }
+            }
+
+            outputText.value = result.join(' ');
+            updateStats();
+        }
+
+        function sortWords() {
+            const words = processWords(outputText.value);
+            outputText.value = words.sort().join(' ');
+        }
+
+        function copyToClipboard() {
+            const text = outputText.value;
+            if (text) {
+                navigator.clipboard.writeText(text);
+                alert('Copied to clipboard!');
+            }
+        }
+
+        function clearAll() {
+            inputText.value = '';
+            outputText.value = '';
+            originalCount.textContent = '0';
+            uniqueCount.textContent = '0';
+            duplicateCount.textContent = '0';
+        }
+
+        // Event listeners
+        inputText.addEventListener('input', updateStats);
+        caseSensitive.addEventListener('change', updateStats);
+        ignoreSpecial.addEventListener('change', updateStats);
+    </script>
+</body>
+</html>

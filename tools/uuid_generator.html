@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-adsense-account" content="ca-pub-9818873189641493">
+    <meta name="google-site-verification" content="iAN9AM3kAC3hCJHmgKJ5ICF0IGo1x-Rq7O4oIfyPv_o" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UUID Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            margin: 1rem;
+        }
+
+        h1 {
+            color: #007bff;
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            padding: 0.8rem;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .output {
+            background-color: #e6f0ff;
+            padding: 1rem;
+            border-radius: 5px;
+            min-height: 60px;
+            color: #0056b3;
+            font-size: 1rem;
+            word-break: break-all;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: center;
+        }
+
+        .error {
+            color: #d9534f;
+            font-weight: bold;
+        }
+
+        .success {
+            color: #5cb85c;
+            font-weight: bold;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            button {
+                font-size: 0.9rem;
+            }
+
+            .output {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>UUID Generator</h1>
+        <div class="button-group">
+            <button id="generateBtn">Generate UUID</button>
+            <button id="copyBtn">Copy UUID</button>
+            <button id="clearBtn">Clear</button>
+        </div>
+        <div class="output" id="output">Click "Generate UUID" to create a new UUID...</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const generateBtn = document.getElementById('generateBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const output = document.getElementById('output');
+
+            // Function to generate a random UUID (Version 4)
+            function generateUUID() {
+                try {
+                    // Use crypto API for secure random numbers
+                    const crypto = window.crypto || window.msCrypto;
+                    if (!crypto) {
+                        throw new Error('Crypto API not supported');
+                    }
+                    const bytes = new Uint8Array(16);
+                    crypto.getRandomValues(bytes);
+
+                    // Set UUID version (4) and variant (8, 9, A, or B)
+                    bytes[6] = (bytes[6] & 0x0f) | 0x40; // Version 4
+                    bytes[8] = (bytes[8] & 0x3f) | 0x80; // Variant
+
+                    // Convert to hexadecimal
+                    const hex = Array.from(bytes)
+                        .map(b => b.toString(16).padStart(2, '0'))
+                        .join('');
+
+                    // Format as UUID: 8-4-4-4-12
+                    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+                } catch (e) {
+                    output.innerHTML = '<span class="error">Error generating UUID. Your browser may not support the Crypto API.</span>';
+                    return null;
+                }
+            }
+
+            // Function to copy UUID to clipboard
+            function copyUUID() {
+                const uuid = output.textContent;
+                if (!uuid || uuid === 'Click "Generate UUID" to create a new UUID...' || uuid.includes('Error')) {
+                    output.innerHTML = '<span class="error">No UUID to copy. Generate a UUID first.</span>';
+                    setTimeout(() => {
+                        output.textContent = 'Click "Generate UUID" to create a new UUID...';
+                    }, 2000);
+                    return;
+                }
+
+                try {
+                    navigator.clipboard.writeText(uuid).then(() => {
+                        output.innerHTML = `<span class="success">UUID copied: ${uuid}</span>`;
+                        setTimeout(() => {
+                            output.textContent = uuid;
+                        }, 2000);
+                    }).catch(() => {
+                        output.innerHTML = '<span class="error">Failed to copy UUID. Try copying manually.</span>';
+                    });
+                } catch (e) {
+                    output.innerHTML = '<span class="error">Clipboard API not supported. Copy the UUID manually.</span>';
+                }
+            }
+
+            // Function to clear output
+            function clearOutput() {
+                output.textContent = 'Click "Generate UUID" to create a new UUID...';
+            }
+
+            // Event listeners
+            generateBtn.addEventListener('click', () => {
+                const uuid = generateUUID();
+                if (uuid) {
+                    output.textContent = uuid;
+                }
+            });
+
+            copyBtn.addEventListener('click', copyUUID);
+            clearBtn.addEventListener('click', clearOutput);
+        });
+    </script>
+</body>
+</html>

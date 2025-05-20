@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-adsense-account" content="ca-pub-9818873189641493">
+    <meta name="google-site-verification" content="iAN9AM3kAC3hCJHmgKJ5ICF0IGo1x-Rq7O4oIfyPv_o" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meta Tag Analyzer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            margin: 1rem;
+        }
+
+        h1 {
+            color: #007bff;
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            color: #007bff;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 0.8rem;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            resize: none;
+            font-size: 1rem;
+            box-sizing: border-box;
+            margin-bottom: 1rem;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        textarea:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #0056b3;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            padding: 0.8rem;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .clear-btn {
+            grid-column: span 2;
+        }
+
+        .output {
+            background-color: #e6f0ff;
+            padding: 1rem;
+            border-radius: 5px;
+            min-height: 100px;
+            color: #0056b3;
+            font-size: 1rem;
+        }
+
+        .output h3 {
+            margin: 0.5rem 0;
+            color: #007bff;
+        }
+
+        .output p {
+            margin: 0.3rem 0;
+        }
+
+        .output .warning {
+            color: #d9534f;
+            font-weight: bold;
+        }
+
+        .output .success {
+            color: #5cb85c;
+            font-weight: bold;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            textarea {
+                height: 120px;
+                font-size: 0.9rem;
+            }
+
+            input[type="text"] {
+                font-size: 0.9rem;
+            }
+
+            button {
+                font-size: 0.9rem;
+            }
+
+            .output {
+                font-size: 0.9rem;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+
+            .clear-btn {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Meta Tag Analyzer</h1>
+        <div class="input-group">
+            <label for="urlInput">Website URL (Optional)</label>
+            <input type="text" id="urlInput" placeholder="Enter URL (e.g., https://example.com)">
+        </div>
+        <div class="input-group">
+            <label for="htmlInput">HTML Code</label>
+            <textarea id="htmlInput" placeholder="Paste your HTML code here..."></textarea>
+        </div>
+        <div class="button-group">
+            <button onclick="analyzeMetaTags()">Analyze</button>
+            <button class="clear-btn" onclick="clearInputs()">Clear</button>
+        </div>
+        <div class="output" id="output">Results will appear here...</div>
+    </div>
+
+    <script>
+        const urlInput = document.getElementById('urlInput');
+        const htmlInput = document.getElementById('htmlInput');
+        const output = document.getElementById('output');
+
+        function analyzeMetaTags() {
+            const html = htmlInput.value.trim();
+            const url = urlInput.value.trim();
+
+            if (!html) {
+                output.textContent = 'Please enter HTML code to analyze.';
+                return;
+            }
+
+            try {
+                // Create a DOM parser to parse HTML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                // Extract meta tags
+                const metaTags = doc.querySelectorAll('meta');
+                const titleTag = doc.querySelector('title');
+                let results = [];
+
+                // Title
+                const title = titleTag ? titleTag.textContent.trim() : '';
+                results.push('<h3>Title Tag</h3>');
+                if (title) {
+                    results.push(`<p><strong>Content:</strong> ${title}</p>`);
+                    if (title.length > 60) {
+                        results.push('<p class="warning">Warning: Title is too long (>60 characters). Optimal length is 50-60 characters for SEO.</p>');
+                    } else if (title.length < 10) {
+                        results.push('<p class="warning">Warning: Title is too short (<10 characters). Consider adding more descriptive text.</p>');
+                    } else {
+                        results.push('<p class="success">Good: Title length is within optimal range.</p>');
+                    }
+                } else {
+                    results.push('<p class="warning">Warning: No title tag found. Add a descriptive title for SEO.</p>');
+                }
+
+                // Meta Description
+                const description = Array.from(metaTags).find(meta => meta.getAttribute('name')?.toLowerCase() === 'description');
+                results.push('<h3>Meta Description</h3>');
+                if (description) {
+                    const descContent = description.getAttribute('content')?.trim() || '';
+                    results.push(`<p><strong>Content:</strong> ${descContent}</p>`);
+                    if (descContent.length > 160) {
+                        results.push('<p class="warning">Warning: Description is too long (>160 characters). Optimal length is 120-160 characters for SEO.</p>');
+                    } else if (descContent.length < 50) {
+                        results.push('<p class="warning">Warning: Description is too short (<50 characters). Consider adding more detail.</p>');
+                    } else {
+                        results.push('<p class="success">Good: Description length is within optimal range.</p>');
+                    }
+                } else {
+                    results.push('<p class="warning">Warning: No meta description found. Add one for better SEO.</p>');
+                }
+
+                // Meta Keywords
+                const keywords = Array.from(metaTags).find(meta => meta.getAttribute('name')?.toLowerCase() === 'keywords');
+                results.push('<h3>Meta Keywords</h3>');
+                if (keywords) {
+                    const keywordsContent = keywords.getAttribute('content')?.trim() || '';
+                    results.push(`<p><strong>Content:</strong> ${keywordsContent}</p>`);
+                    results.push('<p class="warning">Note: Meta keywords are largely ignored by modern search engines. Focus on content quality instead.</p>');
+                } else {
+                    results.push('<p>No meta keywords found. This is fine, as they have minimal SEO impact.</p>');
+                }
+
+                // Meta Robots
+                const robots = Array.from(metaTags).find(meta => meta.getAttribute('name')?.toLowerCase() === 'robots');
+                results.push('<h3>Meta Robots</h3>');
+                if (robots) {
+                    const robotsContent = robots.getAttribute('content')?.trim() || '';
+                    results.push(`<p><strong>Content:</strong> ${robotsContent}</p>`);
+                    if (robotsContent.toLowerCase().includes('noindex')) {
+                        results.push('<p class="warning">Warning: "noindex" directive may prevent search engines from indexing this page.</p>');
+                    } else {
+                        results.push('<p class="success">Good: No restrictive directives detected.</p>');
+                    }
+                } else {
+                    results.push('<p>No meta robots tag found. Default behavior allows indexing and following.</p>');
+                }
+
+                // Meta Viewport
+                const viewport = Array.from(metaTags).find(meta => meta.getAttribute('name')?.toLowerCase() === 'viewport');
+                results.push('<h3>Meta Viewport</h3>');
+                if (viewport) {
+                    const viewportContent = viewport.getAttribute('content')?.trim() || '';
+                    results.push(`<p><strong>Content:</strong> ${viewportContent}</p>`);
+                    if (viewportContent.includes('width=device-width')) {
+                        results.push('<p class="success">Good: Viewport is set for responsive design.</p>');
+                    } else {
+                        results.push('<p class="warning">Warning: Viewport may not be optimized for mobile devices.</p>');
+                    }
+                } else {
+                    results.push('<p class="warning">Warning: No viewport meta tag found. Add one for mobile responsiveness.</p>');
+                }
+
+                // Open Graph Tags
+                results.push('<h3>Open Graph Tags</h3>');
+                const ogTags = Array.from(metaTags).filter(meta => meta.getAttribute('property')?.toLowerCase().startsWith('og:'));
+                if (ogTags.length > 0) {
+                    ogTags.forEach(tag => {
+                        const property = tag.getAttribute('property')?.trim();
+                        const content = tag.getAttribute('content')?.trim() || '';
+                        results.push(`<p><strong>${property}:</strong> ${content}</p>`);
+                    });
+                    if (!ogTags.some(tag => tag.getAttribute('property')?.toLowerCase() === 'og:title')) {
+                        results.push('<p class="warning">Warning: Missing og:title. Add for better social media sharing.</p>');
+                    }
+                    if (!ogTags.some(tag => tag.getAttribute('property')?.toLowerCase() === 'og:description')) {
+                        results.push('<p class="warning">Warning: Missing og:description. Add for better social media sharing.</p>');
+                    }
+                } else {
+                    results.push('<p class="warning">Warning: No Open Graph tags found. Add them for better social media previews.</p>');
+                }
+
+                // URL Note
+                if (url) {
+                    results.unshift(`<p><strong>URL Provided:</strong> ${url}</p>`);
+                    results.unshift('<p class="warning">Note: This tool analyzes HTML code directly. To analyze meta tags from a live URL, fetch the page source (e.g., via browser Developer Tools) and paste it here.</p>');
+                }
+
+                output.innerHTML = results.join('');
+            } catch (e) {
+                output.textContent = 'Error analyzing HTML. Please check your input for valid HTML code.';
+            }
+        }
+
+        function clearInputs() {
+            urlInput.value = '';
+            htmlInput.value = '';
+            output.textContent = 'Results will appear here...';
+        }
+    </script>
+</body>
+</html>

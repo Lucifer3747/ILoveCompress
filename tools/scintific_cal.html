@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-adsense-account" content="ca-pub-9818873189641493">
+    <meta name="google-site-verification" content="iAN9AM3kAC3hCJHmgKJ5ICF0IGo1x-Rq7O4oIfyPv_o" />
+    <title>Scientific Calculator - Tools Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #f0f9ff; }
+        .btn-hover { transition: background-color 0.3s ease, transform 0.3s ease; }
+        .btn-hover:hover { background-color: #1d4ed8; transform: translateY(-2px); }
+        .calculator { max-width: 400px; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .display { background: #f3f4f6; border-radius: 8px; padding: 1rem; font-size: 1.5rem; text-align: right; min-height: 60px; word-break: break-all; }
+        .btn-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; padding: 1rem; }
+        .btn { background: #2563eb; color: white; padding: 0.75rem; text-align: center; border-radius: 8px; cursor: pointer; font-size: 1rem; }
+        .btn-gray { background: #6b7280; }
+        .btn-gray:hover { background: #4b5563; }
+        .container { max-width: 1200px; }
+        @media (max-width: 640px) {
+            .calculator { max-width: 100%; }
+            .display { font-size: 1.25rem; padding: 0.75rem; }
+            .btn { padding: 0.5rem; font-size: 0.875rem; }
+            .btn-grid { grid-template-columns: repeat(5, 1fr); gap: 0.25rem; }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+    <!-- Header -->
+       <header class="bg-white shadow-sm py-4" id="header">
+     <div class="container mx-auto px-4 flex justify-between items-center">
+        <div class="text-2xl font-bold text-blue-700">
+            <img src="../logo.avif" alt="I love Compress" class="h-14">
+        </div>
+        <nav class="space-x-6">
+            <a href="../index.html" class="nav-link text-gray-600 hover:text-blue-700">Home</a>
+            <a href="../index.html#tools" class="nav-link text-gray-600 hover:text-blue-700">Tools</a>
+            <a href="../index.html#contact" class="nav-link text-gray-600 hover:text-blue-700">Contact</a>
+        </nav>
+        <div class="flex items-center space-x-4">
+            <a href="mailto:lucipycode101@gmail.com" class="text-gray-600 hover:text-blue-700">lucipycode101@gmail.com</a>
+            <button id="theme-toggle" class="text-gray-600 hover:text-blue-700">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </div>
+</header>
+
+    <!-- Main Section -->
+    <section class="py-12">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl md:text-4xl font-bold text-blue-700 mb-6 text-center">Scientific Calculator</h1>
+            <p class="text-lg text-gray-600 mb-8 text-center">Perform basic and scientific calculations with ease.</p>
+
+            <div class="calculator mx-auto">
+                <div class="display" id="display">0</div>
+                <div class="btn-grid">
+                    <div class="btn btn-gray btn-hover" onclick="clearDisplay()">C</div>
+                    <div class="btn btn-gray btn-hover" onclick="appendToDisplay('(')">(</div>
+                    <div class="btn btn-gray btn-hover" onclick="appendToDisplay(')')">)</div>
+                    <div class="btn btn-gray btn-hover" onclick="backspace()"><i class="fas fa-backspace"></i></div>
+                    <div class="btn btn-gray btn-hover" onclick="calculateFactorial()">n!</div>
+
+                    <div class="btn btn-hover" onclick="appendToDisplay('7')">7</div>
+                    <div class="btn btn-hover" onclick="appendToDisplay('8')">8</div>
+                    <div class="btn btn-hover" onclick="appendToDisplay('9')">9</div>
+                    <div class="btn btn-gray btn-hover" onclick="appendToDisplay('/')">÷</div>
+                    <div class="btn btn-gray btn-hover" onclick="calculateSin()">sin</div>
+
+                    <div class="btn btn-hover" onclick="appendToDisplay('4')">4</div>
+                    <div class="btn btn-hover" onclick="appendToDisplay('5')">5</div>
+                    <div class="btn btn-hover" onclick="appendToDisplay('6')">6</div>
+                    <div class="btn btn-gray btn-hover" onclick="appendToDisplay('*')">×</div>
+                    <div class="btn btn-gray btn-hover" onclick="calculateCos()">cos</div>
+
+                    <div class="btn btn-hover" onclick="appendToDisplay('1')">1</div>
+                    <div class="btn btn-hover" onclick="appendToDisplay('2')">2</div>
+                    <div class="btn btn-hover" onclick="appendToDisplay('3')">3</div>
+                    <div class="btn btn-gray btn-hover" onclick="appendToDisplay('-')">-</div>
+                    <div class="btn btn-gray btn-hover" onclick="calculateTan()">tan</div>
+
+                    <div class="btn btn-hover" onclick="appendToDisplay('0')">0</div>
+                    <div class="btn btn-hover" onclick="appendToDisplay('.')">.</div>
+                    <div class="btn btn-gray btn-hover" onclick="calculate()">=</div>
+                    <div class="btn btn-gray btn-hover" onclick="appendToDisplay('+')">+</div>
+                    <div class="btn btn-gray btn-hover" onclick="calculateSqrt()">√</div>
+
+                    <div class="btn btn-gray btn-hover" onclick="memoryClear()">MC</div>
+                    <div class="btn btn-gray btn-hover" onclick="memoryRecall()">MR</div>
+                    <div class="btn btn-gray btn-hover" onclick="memoryStore()">MS</div>
+                    <div class="btn btn-gray btn-hover" onclick="memoryAdd()">M+</div>
+                    <div class="btn btn-gray btn-hover" onclick="memorySubtract()">M-</div>
+
+                    <div class="btn btn-gray btn-hover" onclick="appendToDisplay(Math.PI)">π</div>
+                    <div class="btn btn-gray btn-hover" onclick="appendToDisplay(Math.E)">e</div>
+                    <div class="btn btn-gray btn-hover" onclick="calculateLog()">log</div>
+                    <div class="btn btn-gray btn-hover" onclick="calculateLn()">ln</div>
+                    <div class="btn btn-gray btn-hover" onclick="calculateExp()">e^x</div>
+
+                    <div class="btn btn-gray btn-hover" onclick="calculateAsin()">asin</div>
+                    <div class="btn btn-gray btn-hover" onclick="calculateAcos()">acos</div>
+                    <div class="btn btn-gray btn-hover" onclick="calculateAtan()">atan</div>
+                    <div class="btn btn-gray btn-hover" onclick="appendToDisplay('^')">^</div>
+                    <div class="btn btn-gray btn-hover" onclick="calculatePercent()">%</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-10">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="text-2xl font-bold text-blue-400">I Love Compress</div>
+                    <p class="text-gray-400">Simplifying your digital life.</p>
+                </div>
+                <div class="flex flex-col items-center md:items-end">
+                    <a href="mailto:lucipycode101@gmail.com" class="text-gray-400 hover:text-blue-400 mb-2">lucipycode101@gmail.com</a>
+                    <div class="space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-blue-400">Privacy Policy</a>
+                        <a href="#" class="text-gray-400 hover:text-blue-400">Terms of Use</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let display = document.getElementById('display');
+        let memory = 0;
+        let isError = false;
+
+        function appendToDisplay(value) {
+            if (isError) {
+                display.textContent = '0';
+                isError = false;
+            }
+            if (display.textContent === '0' && value !== '.') {
+                display.textContent = value;
+            } else {
+                display.textContent += value;
+            }
+        }
+
+        function clearDisplay() {
+            display.textContent = '0';
+            isError = false;
+        }
+
+        function backspace() {
+            if (isError) {
+                clearDisplay();
+                return;
+            }
+            display.textContent = display.textContent.slice(0, -1) || '0';
+        }
+
+        function calculate() {
+            try {
+                let expression = display.textContent.replace(/÷/g, '/').replace(/×/g, '*');
+                // Replace ^ with ** for power
+                expression = expression.replace(/\^/g, '**');
+                // Sanitize to prevent script injection
+                if (/[^0-9+\-*/().^ ]/.test(expression)) {
+                    throw new Error('Invalid characters');
+                }
+                const result = eval(expression);
+                if (!isFinite(result)) {
+                    throw new Error('Division by zero or invalid operation');
+                }
+                display.textContent = Number(result.toFixed(10));
+                isError = false;
+            } catch (e) {
+                display.textContent = 'Error';
+                isError = true;
+            }
+        }
+
+        function calculateSin() {
+            try {
+                const value = eval(display.textContent);
+                if (isNaN(value)) throw new Error('Invalid input');
+                display.textContent = Number(Math.sin(value * Math.PI / 180).toFixed(10));
+                isError = false;
+            } catch (e) {
+                display.textContent = 'Error';
+                isError = true;
+            }
+        }
+
+        function calculateCos() {
+            try {
+                const value = eval(display.textContent);
+                if (isNaN(value)) throw new Error('Invalid input');
+                display.textContent = Number(Math.cos(value * Math.PI / 180).toFixed(10));
+                isError = false;
+            } catch (e) {
+                display.textContent = 'Error';
+                isError = true;
+            }
+        }
+
+        function calculateTan() {
+            try {
+                const value = eval(display.textContent);
+                if (isNaN(value)) throw new Error('Invalid input');
+                const result = Math.tan(value * Math.PI / 180);
+                if (!isFinite(result)) throw new Error('Invalid tangent');
+                display.textContent = Number(result.toFixed(10));
+                isError = false;
+            } catch (e) {
+                display.textContent = 'Error';
+                isError = true;
+            }
+        }
+
+        function calculateAsin() {
+            try {
+                const value = eval(display.textContent);
+                if (isNaN(value) || value < -1 || value > 1) throw new Error('Invalid input');
+                display.textContent = Number((Math.asin(value) * 180 / Math.PI).toFixed(10));
+                isError = false;
+            } catch (e) {
+                display.textContent = 'Error';
+                isError = true;
+            }
+        }
+
+        function calculateAcos() {
+            try {
+                const value = eval(display.textContent);
+                if (isNaN(value) || value < -1 || value > 1) throw new Error('Invalid input');
+                display.textContent = Number((Math.acos(value) * 180 / Math.PI).toFixed(10));
+                isError = false;
+            } catch (e) {
+                display.textContent = 'Error';
+                isError = true;
+            }
+        }
+
+        function calculateAtan() {
+            try {
+                const value = eval(display.textContent);
+                if (isNaN(value)) throw new Error('Invalid input');
+                display.textContent = Number((Math.atan(value) * 180 / Math.PI).toFixed(10));
+                isError = false;
+            } catch (e) {
+                display.textContent = 'Error';
+                isError = true;
+            }
+        }
+
+        function calculateSqrt() {
+            try {
+                const value = eval(display.textContent);
+                if (isNaN(value) || value < 0) throw new Error('Invalid input');
+                display.textContent = Number(Math.sqrt(value).toFixed(10));
+                isError = false;
+            } catch (e) {
+                display.textContent = 'Error';
+                isError = true;
+            }
+        }
+
+        function calculateLog() {
+            try {
+                const value = eval(display.textContent);
+                if (isNaN(value) || value <= 0) throw new Error('Invalid input');
+                display.textContent = Number(Math.log10(value).toFixed(10));
+                isError = false;
+            } catch (e) {
+                display.textContent = 'Error';
+                isError = true;
+            }
+        }
+
+        function calculateLn() {
+            try {
+                const value = eval(display.textContent);
+                if (isNaN(value) || value <= 0) throw new Error('Invalid input');
+                display.textContent = Number(Math.log(value).toFixed(10));
+                isError = false;
+            } catch (e) {
+                display.textContent = 'Error';
+                isError = true;
+            }
+        }
+
+        function calculateExp() {
+            try {
+                const value = eval(display.textContent);
+                if (isNaN(value)) throw new Error('Invalid input');
+                const result = Math.exp(value);
+                if (!isFinite(result)) throw new Error('Overflow');
+                display.textContent = Number(result.toFixed(10));
+                isError = false;
+            } catch (e) {
+                display.textContent = 'Error';
+                isError = true;
+            }
+        }
+
+        function calculateFactorial() {
+            try {
+                const value = eval(display.textContent);
+                if (isNaN(value) || value < 0 || !Number.isInteger(value)) {
+                    throw new Error('Invalid input for factorial');
+                }
+                let result = 1;
+                for (let i = 2; i <= value; i++) {
+                    result *= i;
+                    if (!isFinite(result)) throw new Error('Factorial too large');
+                }
+                display.textContent = result;
+                isError = false;
+            } catch (e) {
+                display.textContent = 'Error';
+                isError = true;
+            }
+        }
+
+        function calculatePercent() {
+            try {
+                const value = eval(display.textContent);
+                if (isNaN(value)) throw new Error('Invalid input');
+                display.textContent = Number((value / 100).toFixed(10));
+                isError = false;
+            } catch (e) {
+                display.textContent = 'Error';
+                isError = true;
+            }
+        }
+
+        function memoryStore() {
+            try {
+                memory = eval(display.textContent);
+                if (isNaN(memory)) throw new Error('Invalid memory value');
+            } catch (e) {
+                display.textContent = 'Error';
+                isError = true;
+            }
+        }
+
+        function memoryRecall() {
+            if (isError) {
+                display.textContent = '0';
+                isError = false;
+            }
+            display.textContent = memory;
+        }
+
+        function memoryClear() {
+            memory = 0;
+        }
+
+        function memoryAdd() {
+            try {
+                const value = eval(display.textContent);
+                if (isNaN(value)) throw new Error('Invalid input');
+                memory += value;
+            } catch (e) {
+                display.textContent = 'Error';
+                isError = true;
+            }
+        }
+
+        function memorySubtract() {
+            try {
+                const value = eval(display.textContent);
+                if (isNaN(value)) throw new Error('Invalid input');
+                memory -= value;
+            } catch (e) {
+                display.textContent = 'Error';
+                isError = true;
+            }
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (isError && e.key !== 'Escape') return;
+            const key = e.key;
+            if (/[0-9]/.test(key)) appendToDisplay(key);
+            else if (key === '+') appendToDisplay('+');
+            else if (key === '-') appendToDisplay('-');
+            else if (key === '*') appendToDisplay('*');
+            else if (key === '/') appendToDisplay('/');
+            else if (key === '.') appendToDisplay('.');
+            else if (key === '(') appendToDisplay('(');
+            else if (key === ')') appendToDisplay(')');
+            else if (key === 'Enter') calculate();
+            else if (key === 'Escape') clearDisplay();
+            else if (key === 'Backspace') backspace();
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>
